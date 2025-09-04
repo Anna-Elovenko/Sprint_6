@@ -1,14 +1,16 @@
+import allure
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
+from pages.base_page import BasePage
 
-class OrderPage:
+
+class OrderPage(BasePage):
 
     first_name = (By.XPATH, "//input[@placeholder='* Имя']")
     last_name = (By.XPATH, "//input[@placeholder='* Фамилия']")
     address = (By.XPATH, "//input[@placeholder='* Адрес: куда привезти заказ']")
     metro_station = (By.CLASS_NAME, "select-search__input")
+    metro_option = (By.CLASS_NAME, "select-search__option")
     phone = (By.XPATH, "//input[@placeholder='* Телефон: на него позвонит курьер']")
     next_button = (By.XPATH, "//button[text()='Далее']")
 
@@ -20,34 +22,31 @@ class OrderPage:
     order_button = (By.XPATH, "(//button[text()='Заказать'])[2]")
     confirm_button = (By.XPATH, "//button[contains(text(), 'Да')]")
     success_modal = (By.CLASS_NAME, "Order_ModalHeader__3FDaJ")
-    
-    def __init__(self,driver):
-        self.driver = driver
-        self.wait = WebDriverWait(driver, 10)
 
+    @allure.step("Заполняем форму заказа")
     def fill_order_form(self, data):
-        self.driver.find_element(*self.first_name).send_keys(data["first_name"])
-        self.driver.find_element(*self.last_name).send_keys(data["last_name"])
-        self.driver.find_element(*self.address).send_keys(data["address"])
+        self.send_keys(self.first_name, data["first_name"])
+        self.send_keys(self.last_name, data["last_name"])
+        self.send_keys(self.address, data["address"])
 
-        self.driver.find_element(*self.metro_station).send_keys(data["station"])
-        self.wait.until(EC.presence_of_element_located((By.CLASS_NAME, "select-search__option"))).click()
-        
-        self.driver.find_element(*self.phone).send_keys(data["phone"])
-        self.driver.find_element(*self.next_button).click()
+        self.send_keys(self.metro_station, data["station"])
+        self.wait_for_element_present(self.metro_option).click()
 
-        date_input = self.driver.find_element(*self.date)
-        date_input.send_keys(data["date"])
-        date_input.send_keys(Keys.ESCAPE)
-        
-        self.wait.until(EC.element_to_be_clickable(self.rental_duration)).click()
-        self.wait.until(EC.element_to_be_clickable(self.rental_day_option)).click()
+        self.send_keys(self.phone, data["phone"])
+        self.click(self.next_button)
 
-        self.driver.find_element(*self.color_black).click()
-        self.driver.find_element(*self.comment).send_keys(data["comment"])
-        self.driver.find_element(*self.order_button).click()
-        self.wait.until(EC.element_to_be_clickable(self.confirm_button)).click()
+        self.send_keys(self.date, data["date"])
+        self.find(self.date).send_keys(Keys.ESCAPE)
 
+        self.click(self.rental_duration)
+        self.click(self.rental_day_option)
 
-    def is_success_message_visible(self):
-        return self.wait.until(EC.visibility_of_element_located(self.success_modal)).is_displayed()
+        self.click(self.color_black)
+        self.send_keys(self.comment, data["comment"])
+        self.click(self.order_button)
+        self.click(self.confirm_button)
+
+    @allure.step("Проверяем успешное отображение модального окна подтверждения заказа")
+    def check_success_message(self):
+        assert self.wait_for_element_visible(self.success_modal).is_displayed()
+
