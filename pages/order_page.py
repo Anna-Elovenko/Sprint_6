@@ -48,5 +48,5 @@ class OrderPage(BasePage):
 
     @allure.step("Проверяем успешное отображение модального окна подтверждения заказа")
     def check_success_message(self):
-        assert self.wait_for_element_visible(self.success_modal).is_displayed()
+        return self.wait_for_element_visible(self.success_modal).is_displayed()
 

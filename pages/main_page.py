@@ -36,4 +36,6 @@ class MainPage(BasePage):
     def verify_dzen_redirect(self):
         self.switch_to_new_tab_and_wait()
         current_url = self.get_current_url()
-        assert data.urls.YANDEX_DZEN_DOMAIN in current_url
+        assert data.urls.YANDEX_DZEN_DOMAIN in current_url, (
+        f"Ожидался редирект на {data.urls.YANDEX_DZEN_DOMAIN}, но текущий URL: {current_url}"
+    )

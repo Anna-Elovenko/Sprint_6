@@ -27,7 +27,8 @@ class TestQuestions:
     ])
     def test_question(self, question_locator, answer_locator):
         self.page.open(urls.BASE_URL)
-        self.page.click_question_and_check_answer(question_locator, answer_locator)
+        is_answer_visible = self.page.click_question_and_check_answer(question_locator, answer_locator)
+        assert is_answer_visible, f"Ответ на вопрос {question_locator} не отображается после клика"
 
 
     @classmethod
